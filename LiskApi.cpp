@@ -556,7 +556,6 @@ char * __stdcall LiskAPI::SignMultiSignature(char *  secret,
 // GET /api/multisignatures/pending?publicKey=publicKey
 char * __stdcall LiskAPI::GetPendingMultiSign(char * publickey) {
 AnsiString url = url.sprintf("/api/multisignatures/pending?publicKey=%s",
-		address);
+		publickey);
 	return _request(url.c_str());
-	return _request("/api/multisignatures/pending?publicKey=" + publickey);
 }
