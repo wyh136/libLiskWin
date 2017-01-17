@@ -27,13 +27,12 @@ int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved
 {
 	return 1;
 }
-extern "C" __declspec(dllexport) void __stdcall InitAPI()
+extern "C" __declspec(dllexport) void __stdcall InitAPI(char *nodeurl)
 {
-	if(liskapi==NULL)liskapi=new LiskAPI();
+	if(liskapi==NULL)liskapi=new LiskAPI(nodeurl);
 }
 extern "C" __declspec(dllexport) void __stdcall SetNodeURL(char *nodeurl)
 {
-	InitAPI();
     liskapi->lisknode=AnsiString(nodeurl);
 }
 extern "C" __declspec(dllexport) void __stdcall FreeAPI()
