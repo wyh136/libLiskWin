@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2017/01/17 13:59:24.000.311,=D:\我的文档\Embarcadero\Studio\Projects\File1.cpp</Transaction>
+    <Transaction>2017/01/17 13:59:24.000.221,=D:\我的文档\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2017/01/17 14:00:14.000.274,D:\我的文档\Embarcadero\Studio\Projects\File1.cpp=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\liskdll.cpp</Transaction>
+    <Transaction>2017/01/17 14:00:20.000.594,D:\我的文档\Embarcadero\Studio\Projects\Project1PCH1.h=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\liskdllPCH1.h</Transaction>
+    <Transaction>2017/01/17 14:00:35.000.873,D:\我的文档\Embarcadero\Studio\Projects\Project1.cbproj=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\libLiskApi.cbproj</Transaction>
+    <Transaction>2017/01/17 14:02:40.000.608,=D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\LiskApi.cpp</Transaction>
+    <Transaction>2017/01/17 14:03:19.000.356,D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\LiskApi.cpp=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\LiskApi.cpp</Transaction>
+    <Transaction>2017/01/17 14:03:19.000.356,D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\LiskApi.h=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\LiskApi.h</Transaction>
+  </Transactions>
+</BorlandProject>

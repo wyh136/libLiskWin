@@ -1,465 +1,562 @@
-//---------------------------------------------------------------------------
-//MADE BY PHINX
+// ---------------------------------------------------------------------------
+// MADE BY PHINX
 #pragma hdrstop
 
 #include "LiskApi.h"
 #pragma package(smart_init)
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
-__fastcall LiskAPI::LiskAPI(UnicodeString nodeurl)
-{
-	http=new TIdHTTP();
-    //http->Request->Host=nodeurl;
-    lisknode=nodeurl;
-	http->Request->ContentType="application/json";
+__stdcall LiskAPI::LiskAPI(char * nodeurl) {
+	http = new TIdHTTP();
+	// http->Request->Host=nodeurl;
+	lisknode = nodeurl;
+	http->Request->ContentType = "application/json";
 }
-//---------------------------------------------------------------------------
-__fastcall LiskAPI::LiskAPI()
-{
+
+// ---------------------------------------------------------------------------
+__stdcall LiskAPI::LiskAPI() {
 	LiskAPI(lisknode);
 }
-//---------------------------------------------------------------------------
-__fastcall LiskAPI::~LiskAPI()
-{
-    if(!http)delete http;
+
+// ---------------------------------------------------------------------------
+__stdcall LiskAPI::~LiskAPI() {
+	if (!http)
+		delete http;
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::_request(REQUEST_METHOD request_method,UnicodeString url,TStrings * data)
-{
-	TStringStream *ss=new TStringStream(data->Text,encoding->UTF8,true);
-    UnicodeString result="";
-    switch(request_method){
-		case RGET:result= http->Get(url);break;
-		case RPOST:result=http->Post(url,ss);break;
-		case RPUT:result= http->Put(url,ss);break;
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::_request(REQUEST_METHOD request_method, char * url,
+	char * data) {
+	TStringStream *ss = NULL;
+	if (data != NULL)
+		ss = new TStringStream(AnsiString(data), encoding->UTF8, true);
+	AnsiString result = "";
+	switch (request_method) {
+	case RGET:
+		result = http->Get(lisknode + AnsiString(url));
+		break;
+	case RPOST:
+		result = http->Post(lisknode + AnsiString(url), ss);
+		break;
+	case RPUT:
+		result = http->Put(lisknode + AnsiString(url), ss);
+		break;
 	}
-	data->Free();
-    ss->Free();
-    return result;
+	if (ss) {
+		ss->Free();
+		ss = NULL;
+	}
+	return result.c_str();
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::_request(UnicodeString url /*GET only*/)
-{
-	return _request(RGET,url,new TStringList());
-}
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::Ping()
-{
 
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::_request(char * url /* GET only */) {
+	return _request(RGET, url, NULL);
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::Status()
+
+// ---------------------------------------------------------------------------   /api/loader/status/ping
+char * __stdcall LiskAPI::Ping() {
+	return _request("/api/loader/status/ping");
+}
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::Status() {
+	return _request("/api/loader/status");
+}
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetAccountBySecret(char * secret) {
+	AnsiString data = data.sprintf("{\"secret\": \"%s\"}", secret);
+	return _request(RPOST, "/api/accounts/open", data.c_str());
+}
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::Balance(char * address) //
 {
-     return _request(lisknode+"/api/loader/status");
+	AnsiString url = url.sprintf("/api/accounts/getBalance?address=%s",
+		address);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetAccountBySecret(UnicodeString secret)
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::PublicKey(char * address) {
+	AnsiString url = url.sprintf("/api/accounts/getPublicKey?address=%s",
+		address);
+	return _request(url.c_str());
+}
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GenPublicKey(char * secret) //
 {
-	TStringList *data=new TStringList();
-	data->Clear();
-	data->Text="{\"secret\": \""+secret+"\"}";
-	return _request(RPOST,lisknode+"/api/accounts/open",data);
+	AnsiString data = data.sprintf("{\"secret\": \"%s\"}", secret);
+	return _request(RPOST, "/api/accounts/generatePublicKey", data.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::Balance(UnicodeString address)  //
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetAccountByAddress(char * address) //
 {
-	return _request(lisknode+"/api/accounts/getBalance?address="+address);
+	AnsiString url = url.sprintf("/api/accounts?address=%s", address);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::PublicKey(UnicodeString address)
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetDelegates(char * address) //
 {
-	return _request(lisknode+"/api/accounts/getPublicKey?address="+address);
+	AnsiString url = url.sprintf("/api/accounts/delegates?address=%s", address);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GenPublicKey(UnicodeString secret)//
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::DelegatesVote(char * secret, char * second_secret,
+	char * pubkey, char *delegates) //
 {
-	TStringList *data=new TStringList();
-	data->Clear();
-	data->Text="{\"secret\": \""+secret+"\"}";
-	return _request(RPOST,lisknode+"/api/accounts/generatePublicKey",data);
+	AnsiString data = "";
+	AnsiString sec_secret = "";
+	if (second_secret != "")
+		sec_secret = sec_secret.sprintf("\"secondSecret\":\"%s\",",
+		second_secret);
+	data = data.sprintf
+		("{\"secret\":\"%s\",\"publicKey\":\"%s\",%s \"delegates\":[%s]}",
+		secret, pubkey, sec_secret.c_str(), delegates);
+	return _request(RPUT, "/api/accounts/delegates", data.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetAccountByAddress(UnicodeString address)//
-{
-	return _request(lisknode+"/api/accounts?address="+address);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::SyncStatus() {
+	return _request("/api/loader/status/sync");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetDelegates(UnicodeString address)       //
-{
-	return _request(lisknode+"/api/accounts/delegates?address="+address);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::Transactions(char * blockID, char * senderId,
+	char * recvID, __int64 limit, __int64 offset, char * orderby) {
+	AnsiString url = url.sprintf("/api/transactions?blockId=%s", blockID);
+	if (limit > 100)
+		limit = 100;
+	if (senderId != NULL)
+		url = url.cat_sprintf("&senderId=%s", senderId);
+	if (recvID != NULL)
+		url = url.cat_sprintf("&recipientId=%s", recvID);
+	if (limit > 0)
+		url = url.cat_sprintf("&limit=%d", limit);
+	if (offset > 0)
+		url = url.cat_sprintf("&offset=%d", offset);
+	if (orderby == "")
+		orderby = "timestamp:desc";
+	url = url.cat_sprintf("&orderBy=%s", orderby);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::DelegatesVote(UnicodeString secret,UnicodeString second_secret,UnicodeString pubkey,TStringList *delegates) //
-{
-	TStringList *data=new TStringList();
-	data->Clear();
-	UnicodeString sec_secret="";
-	if(second_secret!="")sec_secret="\"secondSecret\":\""+second_secret+"\",";
-	data->Text="{\"secret\":\""+secret+"\",\"publicKey\":\""+pubkey+"\","+sec_secret+" \"delegates\":["+delegates->Text+"]}";
-	return _request(RPUT,lisknode+"/api/accounts/delegates",data);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::SendTransactions(char * secret, __int64 amount,
+	char * recverID, char * publicKey, char * secondSecret) {
+	AnsiString data = "", sec_secret = "";
+
+	if (secondSecret != NULL)
+		sec_secret = sec_secret.sprintf("\"secondSecret\":\"%s\"",
+		secondSecret);
+	data = data.sprintf
+		("{\"secret\":\"%s\",\"amount\": %d ,\"recipientId\":\"%s\",\"publicKey\":\"%s\",%s}",
+		secret, amount, recverID, publicKey, sec_secret.c_str());
+	return _request(RPUT, "/api/transactions", data.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::SyncStatus()
-{
-	return _request(lisknode+"/api/loader/status/sync");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetTransactions(char * txid) {
+	AnsiString url = url.sprintf("/api/transactions/get?id=%s", txid);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::Transactions(UnicodeString blockID,UnicodeString senderId,UnicodeString recvID,__int64 limit,__int64 offset,UnicodeString orderby)
-{
-	UnicodeString limitstr="";
-	UnicodeString offsetstr="";
-	if(limit>100)limit=100;
-	if(orderby=="")orderby="timestamp:desc";
-	if(senderId!="")senderId="&senderId="+senderId;
-	if(recvID!="")recvID="&recipientId="+recvID;
-	if(limit>0)limitstr="&limit="+IntToStr(limit);
-	if(offset>0)offsetstr="&offset="+IntToStr(offset);
-	return _request(lisknode+"/api/transactions?blockId="+blockID+senderId+recvID+limitstr+offsetstr+"&orderBy="+orderby);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetUnConfirmedTxByID(char * txid) {
+	AnsiString url =
+		url.sprintf("/api/transactions/unconfirmed/get?id=%s", txid);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::SendTransactions(UnicodeString secret,__int64 amount,UnicodeString recverID,UnicodeString publicKey,UnicodeString secondSecret)
-{
-	TStringList *data=new TStringList();
-	data->Clear();
-	UnicodeString sec_secret="";
-	if(secondSecret!="")sec_secret="\"secondSecret\":\""+secondSecret+"\"";
-	data->Text="{\"secret\":\""+secret+"\",\"amount\":"+IntToStr(amount)+",\"recipientId\":\""+recverID+"\",\"publicKey\":\""+publicKey+"\","+sec_secret+"}";
-	return _request(RPUT,lisknode+"/api/transactions",data);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetUnConfirmedTx() {
+	return _request("/api/transactions/unconfirmed");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetTransactions(UnicodeString txid)
-{
-		return _request(lisknode+"/api/transactions/get?id="+txid);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetQueuedTx() {
+	return _request("/api/transactions/queued");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetUnConfirmedTxByID(UnicodeString txid)
-{
-	return _request(lisknode+"/api/transactions/unconfirmed/get?id="+txid);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetQueuedTxByID(char * txid) {
+	AnsiString url = url.sprintf("/api/transactions/queued/get?id=%s", txid);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetUnConfirmedTx()
-{
-	return _request(lisknode+"/api/transactions/unconfirmed");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetPeers
+	(int state /* 1 - disconnected. 2 - connected. 0 - banned */ , char * os,
+	char * version, int limit, __int32 offset, char * orderBy) {
+	AnsiString url = "/api/peers?";
+	if (limit > 100)
+		limit = 100;
+	if (state != NULL)
+		url = url.cat_sprintf("state=%d&", state);
+	if (os != NULL)
+		url = url.cat_sprintf("os=%s&", os); ;
+	if (version != NULL)
+		url = url.cat_sprintf("version=%s&", version);
+	if (limit > 0)
+		url = url.cat_sprintf("limit=%d&", limit);
+	if (offset > 0)
+		url = url.cat_sprintf("offset=%d&", offset);
+	if (orderBy != NULL)
+		url = url.cat_sprintf("orderBy=%s&", orderBy);
+	else {
+		url = url.cat_sprintf("orderBy=%s&", "orderBy=height:desc");
+	}
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetQueuedTx()
-{
-	return _request(lisknode+"/api/transactions/queued");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetPeerByIPEndPoint(char * ip, int port) {
+	AnsiString url = url.sprintf("/api/peers/get?ip=%s&port=%d", ip, port);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetQueuedTxByID(UnicodeString txid)
-{
-	return _request(lisknode+"/api/transactions/queued/get?id="+txid);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetVersion() {
+	return _request("/api/peers/version");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetPeers(UnicodeString state/*1 - disconnected. 2 - connected. 0 - banned*/,UnicodeString os,UnicodeString version,int limit,__int32 offset,UnicodeString orderBy)
-{
-	  UnicodeString _state="",_os="",_limit="",_offset="",_orderby="",_version="";
-	  if(limit>100)limit=100;
-	  if(state!="")_state="state="+state+"&";
-	  if(os!="")_os="os="+os+"&";
-      if(version!="")_version="version="+version+"&";
-	  if(limit>0)_limit="limit="+IntToStr(limit)+"&";
-	  if(offset>0)_offset="offset="+IntToStr(offset)+"&";
-	  if(orderBy!="")_orderby="orderBy="+orderBy+"&";
-	  else{
-		 _orderby="orderBy=height:desc" ;
-	  }
-	  return _request(lisknode+"/api/peers?"+_state+_os+_version+_limit+_offset+_orderby);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetBlockByID(char * blockid) {
+	AnsiString url = url.sprintf("/api/blocks/get?id=%s", blockid);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetPeerByIPEndPoint(UnicodeString ip,int port)
-{
-	 return _request(lisknode+"/api/peers/get?ip="+ip+"&port="+IntToStr(port));
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetBlocks(__int64 totalfee, __int64 totalAmount,
+	char * prevBlock, __int64 height, char * generatorPubKey, int limit,
+	__int32 offset, char * orderBy) {
+	AnsiString url = "/api/blocks?";
+	if (limit > 100)
+		limit = 100;
+	if (totalfee > 0)
+		url = url.cat_sprintf("totalFee=%d&", totalfee);
+	if (height > 0)
+		url = url.cat_sprintf("height=%d&", height);
+	if (totalAmount > 0)
+		url = url.cat_sprintf("totalAmount=%d&", totalAmount);
+	if (prevBlock != NULL)
+		url = url.cat_sprintf("prevBlock=%s&", prevBlock);
+	if (generatorPubKey != "")
+		url = url.cat_sprintf("generatorPubKey=%s&", generatorPubKey);
+	if (limit > 0)
+		url = url.cat_sprintf("limit=%d&", limit);
+	if (offset > 0)
+		url = url.cat_sprintf("offset=%d&", offset);
+	if (orderBy != NULL)
+		url = url.cat_sprintf("orderBy=%s&", orderBy);
+	else {
+		url = url.cat_sprintf("orderBy=%d&", "orderBy=timestamp:asc");
+	}
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetVersion()
-{
-	 return _request(lisknode+"/api/peers/version");
+
+// ---------------------------------------------------------------------------
+// GET /api/blocks/getFee
+char * __stdcall LiskAPI::GetBlockFee() {
+	return _request("/api/blocks/getFee");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetBlockByID(UnicodeString blockid)
-{
-	return _request(lisknode+"/api/blocks/get?id="+blockid);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetFees() {
+	return _request("/api/blocks/getFees");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetBlocks(__int64 totalfee,__int64 totalAmount,UnicodeString prevBlock,__int64 height,UnicodeString generatorPubKey,int limit,__int32 offset,UnicodeString orderBy)
-{
-	  UnicodeString _totalfee="",_totalAmount="",_limit="",_offset="",_orderby="",_prevBlock="",_height="",_generatorPubKey="";
-	  if(limit>100)limit=100;
-	  if(totalfee>0)_totalfee="totalFee="+IntToStr(totalfee)+"&";
-	  if(height>0)_height="height="+IntToStr(height)+"&";
-	  if(totalAmount>0)_totalAmount="totalAmount="+IntToStr(totalAmount)+"&";
-	  if(prevBlock!="")_prevBlock="prevBlock="+prevBlock+"&";
-	  if(generatorPubKey!="")_generatorPubKey="generatorPubKey="+generatorPubKey+"&";
-	  if(limit>0)_limit="limit="+IntToStr(limit)+"&";
-	  if(offset>0)_offset="offset="+IntToStr(offset)+"&";
-	  if(orderBy!="")_orderby="orderBy="+orderBy+"&";
-	  else{
-		 _orderby="orderBy=timestamp:asc" ;
-	  }
-	  return _request(lisknode+"/api/blocks?"+_totalfee+_totalAmount+_prevBlock+_generatorPubKey+_height+_limit+_offset+_orderby);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetReward() {
+	return _request("/api/blocks/getReward");
 }
-//---------------------------------------------------------------------------
-			//GET /api/blocks/getFee
-UnicodeString __fastcall LiskAPI::GetBlockFee()
-{
-   return _request(lisknode+"/api/blocks/getFee");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetSupply() {
+	return _request("/api/blocks/getSupply");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetFees()
-{
-   return _request(lisknode+"/api/blocks/getFees");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetHeight() {
+	return _request("/api/blocks/getHeight");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetReward()
-{
-   return _request(lisknode+"/api/blocks/getReward");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetStatus() {
+	return _request("/api/blocks/getStatus");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetSupply()
-{
-	return _request(lisknode+"/api/blocks/getSupply");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetNethash() {
+	return _request("/api/blocks/getNethash");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetHeight()
-{
-	return _request(lisknode+"/api/blocks/getHeight");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetMilestone() {
+	return _request("/api/blocks/getMilestone");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetStatus()
-{
-	return _request(lisknode+"/api/blocks/getStatus");
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetSignatureFee() {
+	return _request("/api/signatures/fee");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetNethash()
-{
-	return _request(lisknode+"/api/blocks/getNethash");
+
+// ---------------------------------------------------------------------------
+// PUT /api/signatures
+char * __stdcall LiskAPI::AddSignature(char * secret, char * secondSecret,
+	char * publickey) {
+	AnsiString data = "";
+	AnsiString second_secret = "";
+	if (secondSecret != NULL)
+		second_secret = second_secret.sprintf("\"secondSecret\":\"%s\"",
+		secondSecret);
+	data = data.sprintf("{\"secret\":\"%s\",\"publicKey\":\"%s\",%s}", secret,
+		publickey, second_secret.c_str());
+	return _request(RPUT, "/api/signatures", data.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetMilestone()
-{
-   return _request(lisknode+"/api/blocks/getMilestone");
+
+// ---------------------------------------------------------------------------
+// PUT /api/delegates
+char * __stdcall LiskAPI::CreateDelegate(char * secret, char * second_secret,
+	char * username) {
+	AnsiString data = "";
+	AnsiString secondSecret = "";
+	if (second_secret != NULL)
+		secondSecret = secondSecret.sprintf("\"secondSecret\":\"%s\"",
+		second_secret);
+	data = data.sprintf("{\"secret\":\"%s\",\"username\":\"%s\",%s}", secret,
+		username, secondSecret.c_str());
+	return _request(RPUT, "/api/delegates", data.c_str());
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetSignatureFee()
-{
-	return _request(lisknode+"/api/signatures/fee");
+
+// ---------------------------------------------------------------------------
+// GET /api/delegates?limit=limit&offset=offset&orderBy=orderBy
+char * __stdcall LiskAPI::DelegatesList(int limit, __int32 offset,
+	char * orderBy) {
+	AnsiString url = "/api/delegates?";
+	if (limit > 100)
+		limit = 100;
+	if (limit > 0)
+		url = url.cat_sprintf("limit=%d&", limit);
+	if (offset > 0)
+		url = url.cat_sprintf("offset=%d&", offset);
+	if (orderBy == NULL)
+		url = url.cat_sprintf("orderBy=%s", "timestamp:asc");
+	else
+		url = url.cat_sprintf("orderBy=%s", orderBy);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-			//PUT /api/signatures
-UnicodeString __fastcall LiskAPI::AddSignature(UnicodeString secret,UnicodeString secondSecret,UnicodeString publickey)
-{
-	TStringList *data=new TStringList();
-	data->Clear();
-	UnicodeString second_secret="";
-	if(secondSecret!="")second_secret="\"secondSecret\":\""+secondSecret+"\"";
-	data->Text="{\"secret\":\""+secret+"\",\"publicKey\":\""+publickey+"\","+second_secret+"}";
-	return _request(RPUT,lisknode+"/api/signatures",data);
+
+// ---------------------------------------------------------------------------
+// GET /api/delegates/get?publicKey=publicKey
+char * __stdcall LiskAPI::GetDelegateByPkey(char * publickey) {
+	AnsiString url = url.sprintf("/api/delegates/get?publicKey=%s", publickey);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-//PUT /api/delegates
-UnicodeString __fastcall LiskAPI::CreateDelegate(UnicodeString secret,UnicodeString second_secret,UnicodeString username)
-{
-	TStringList *data=new TStringList();
-	data->Clear();
-	UnicodeString secondSecret="";
-	if(second_secret!="")secondSecret="\"secondSecret\":\""+second_secret+"\"";
-	data->Text="{\"secret\":\""+secret+"\",\"username\":\""+username+"\","+secondSecret+"}";
-	return _request(RPUT,lisknode+"/api/delegates",data);
+
+// ---------------------------------------------------------------------------
+char * __stdcall LiskAPI::GetDelegateByName(char * username) {
+	AnsiString url = url.sprintf("/api/delegates/get?username=%s", username);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-			//GET /api/delegates?limit=limit&offset=offset&orderBy=orderBy
-UnicodeString __fastcall LiskAPI::DelegatesList(int limit,__int32 offset,UnicodeString orderBy)
-{
-	 UnicodeString _limit="",_offset="",_orderby="";
-	 if(limit>100)limit=100;
-	 if(limit>0)_limit="limit="+IntToStr(limit)+"&";
-	 if(offset>0)_offset="offset="+IntToStr(offset)+"&";
-	 if(orderBy=="")_orderby="orderBy=timestamp:asc";
-	 return _request(lisknode+"/api/delegates?"+_limit+_offset+_orderby);
+
+// ---------------------------------------------------------------------------
+// GET /api/delegates/search?q=username&orderBy=producedblocks:desc
+char * __stdcall LiskAPI::SearchDelegate(char * username, char * orderBy) {
+	AnsiString url = url.sprintf("/api/delegates/search?q=%s&", username);
+	if (orderBy == NULL)
+		url = url.cat_sprintf("orderBy=%s", "producedblocks:desc");
+		else
+			url = url.cat_sprintf("orderBy=%s", orderBy);
+			 return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-			//GET /api/delegates/get?publicKey=publicKey
-UnicodeString __fastcall LiskAPI::GetDelegateByPkey(UnicodeString publickey)
-{
-	return _request(lisknode+"/api/delegates/get?publicKey="+publickey);
+
+// ---------------------------------------------------------------------------
+// GET /api/delegates/count
+char * __stdcall LiskAPI::DelegatesCount() {
+	return _request("/api/delegates/count");
 }
-//---------------------------------------------------------------------------
-UnicodeString __fastcall LiskAPI::GetDelegateByName(UnicodeString username)
-{
-	 return _request(lisknode+"/api/delegates/get?username="+username);
+
+// ---------------------------------------------------------------------------
+// GET /api/accounts/delegates/?address=address
+char * __stdcall LiskAPI::GetVotesByAddress(char * address) {
+	AnsiString url = url.sprintf("/api/accounts/delegates/?address=%s",
+		address);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-//GET /api/delegates/search?q=username&orderBy=producedblocks:desc
-UnicodeString __fastcall LiskAPI::SearchDelegate(UnicodeString username,UnicodeString orderBy)
-{
-    UnicodeString _orderby="";
-	if(orderBy=="")_orderby="orderBy=producedblocks:desc";
-	return _request(lisknode+"/api/delegates/search?q="+username);
+
+// ---------------------------------------------------------------------------
+// GET /api/delegates/voters?publicKey=publicKey
+char * __stdcall LiskAPI::GetVotersByPubkey(char * publicKey) {
+	AnsiString url = url.sprintf("/api/delegates/voters?publicKey=%s",
+		publicKey);
+	return _request(url.c_str());
 }
-//---------------------------------------------------------------------------
-//GET /api/delegates/count
-UnicodeString __fastcall LiskAPI::DelegatesCount()
-{
-	return _request(lisknode+"/api/delegates/count");
+
+// POST /api/delegates/forging/enable
+char * __stdcall LiskAPI::EnableForge(char * secret) {
+	AnsiString data = data.sprintf("{\"secret\":\"%s\"}", secret);
+	return _request(RPOST, "/api/delegates/forging/enable", data.c_str());
 }
-//---------------------------------------------------------------------------
-//GET /api/accounts/delegates/?address=address
-UnicodeString __fastcall LiskAPI::GetVotesByAddress(UnicodeString address)
-{
-	return _request(lisknode+"/api/accounts/delegates/?address="+address);
+
+// POST /api/delegates/forging/disable
+char * __stdcall LiskAPI::DisableForge(char * secret) {
+	AnsiString data = data.sprintf("{\"secret\":\"%s\"}", secret);
+	return _request(RPOST, "/api/delegates/forging/disable", data.c_str());
 }
-//---------------------------------------------------------------------------
-//GET /api/delegates/voters?publicKey=publicKey
-UnicodeString __fastcall LiskAPI::GetVotersByPubkey(UnicodeString publicKey)
-{
-   return _request(lisknode+"/api/delegates/voters?publicKey="+publicKey);
+
+// GET /api/delegates/forging/getForgedByAccount?generatorPublicKey=generatorPublicKey
+char * __stdcall LiskAPI::GetForgedAmount(char * pubkey) {
+	AnsiString url =
+		url.sprintf
+		("/api/delegates/forging/getForgedByAccount?generatorPublicKey=%s",
+		pubkey);
+	return _request(url.c_str());
 }
-//POST /api/delegates/forging/enable
-UnicodeString __fastcall LiskAPI::EnableForge(UnicodeString secret)
-{
-   TStringList *data=new TStringList();
-   data->Clear();
-   data->Text="{\"secret\":\""+secret+"\"}";
-   return _request(RPOST,lisknode+"/api/delegates/forging/enable",data);
+
+// GET /api/delegates/getNextForgers?limit=limit
+char * __stdcall LiskAPI::GetNextForgers(int limit) {
+	if (limit > 101)
+		limit = 101;
+	AnsiString url =
+		url.sprintf("/api/delegates/getNextForgers?limit=%d", limit);
+	return _request(url.c_str());
 }
-//POST /api/delegates/forging/disable
-UnicodeString __fastcall LiskAPI::DisableForge(UnicodeString secret)
-{
-   TStringList *data=new TStringList();
-   data->Clear();
-   data->Text="{\"secret\":\""+secret+"\"}";
-   return _request(RPOST,lisknode+"/api/delegates/forging/disable",data);
-}
-			//GET /api/delegates/forging/getForgedByAccount?generatorPublicKey=generatorPublicKey
-UnicodeString __fastcall LiskAPI::GetForgedAmount(UnicodeString pubkey)
-{
-	return _request(lisknode+"/api/delegates/forging/getForgedByAccount?generatorPublicKey="+pubkey);
-}
-			//GET /api/delegates/getNextForgers?limit=limit
-UnicodeString __fastcall LiskAPI::GetNextForgers(int limit)
-{
-    if(limit>101)limit=101;
-	return _request(lisknode+"/api/delegates/getNextForgers?limit="+IntToStr(limit));
-}
-//-----------------------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------------------
 // Dapp functions are not finished. I will be waiting for dapp sdk is released
-//PUT /api/dapps
-UnicodeString __fastcall LiskAPI::RegistDapp(
-UnicodeString secret,UnicodeString secondSecret,UnicodeString pubkey,UnicodeString category,UnicodeString name,UnicodeString description,UnicodeString tags,int type,UnicodeString link,UnicodeString icon)
-{
-   
-}
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps?category=category&name=name&type=type&link=link&limit=limit&offset=offset&orderBy=orderBy
-UnicodeString __fastcall LiskAPI::GetDapps(UnicodeString category,UnicodeString name,int type,UnicodeString link,int limit,__int32 offset,UnicodeString orderBy)
-{
+// PUT /api/dapps
+char * __stdcall LiskAPI::RegistDapp(char * secret, char *,
+	char * pubkey, char * category, char * name, char * description,
+	char * tags, int type, char * link, char * icon) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/get?id=id
-UnicodeString __fastcall LiskAPI::GetDapp(UnicodeString id)
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps?category=category&name=name&type=type&link=link&limit=limit&offset=offset&orderBy=orderBy
+char * __stdcall LiskAPI::GetDapps(char * category, char * name, int type,
+	char * link, int limit, __int32 offset, char * orderBy) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/search?q=q&category=category&installed=installed
-UnicodeString __fastcall LiskAPI::SearchDapp(UnicodeString query,UnicodeString category,int isInstalled)
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/get?id=id
+char * __stdcall LiskAPI::GetDapp(char * id) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//POST /api/dapps/install
-UnicodeString __fastcall LiskAPI::InstallDapp(UnicodeString id)
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/search?q=q&category=category&installed=installed
+char * __stdcall LiskAPI::SearchDapp(char * query, char * category,
+	int isInstalled) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/installed
-UnicodeString __fastcall LiskAPI::InstalledDapps()
-{
+
+// -----------------------------------------------------------------------------------------------------
+// POST /api/dapps/install
+char * __stdcall LiskAPI::InstallDapp(char * id) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/installedIds
-UnicodeString __fastcall LiskAPI::InstalledDappIds()
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/installed
+char * __stdcall LiskAPI::InstalledDapps() {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//POST /api/dapps/uninstall
-UnicodeString __fastcall LiskAPI::UninstallDapp(UnicodeString id)
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/installedIds
+char * __stdcall LiskAPI::InstalledDappIds() {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//POST /api/dapps/launch
-UnicodeString __fastcall LiskAPI::LaunchDapp(UnicodeString id,TStringList params)
-{
+
+// -----------------------------------------------------------------------------------------------------
+// POST /api/dapps/uninstall
+char * __stdcall LiskAPI::UninstallDapp(char * id) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/installing
-UnicodeString __fastcall LiskAPI::InstallingDapps()
-{
+
+// -----------------------------------------------------------------------------------------------------
+// POST /api/dapps/launch
+char * __stdcall LiskAPI::LaunchDapp(char * id, char * params) {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/uninstalling
-UnicodeString __fastcall LiskAPI::UnInstallingDapps()
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/installing
+char * __stdcall LiskAPI::InstallingDapps() {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/launched
-UnicodeString __fastcall LiskAPI::LaunchedDapps()
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/uninstalling
+char * __stdcall LiskAPI::UnInstallingDapps() {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/dapps/categories
-UnicodeString __fastcall LiskAPI::Catefories()
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/launched
+char * __stdcall LiskAPI::LaunchedDapps() {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//POST /api/dapps/stop
-UnicodeString __fastcall LiskAPI::StopDapp(UnicodeString id)
-{
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/dapps/categories
+char * __stdcall LiskAPI::Catefories() {
 
 }
-//-----------------------------------------------------------------------------------------------------
-			//PUT /api/multisignatures
-UnicodeString __fastcall LiskAPI::MultiSign(UnicodeString secret,int lifetime,int min,TStringList *keysgroup)
-{
-	TStringList *data=new TStringList();
-	data->Clear();
-	if(lifetime>24)lifetime=24;
-	if(lifetime<1)lifetime=1;
-	if(min>15)lifetime=15;
-	if(min<1)lifetime=1;
-	data->Text="{\"secret\":\""+secret+"\",\"lifetime\":\""+IntToStr(lifetime)+"\",\"min\":\""+IntToStr(min)+"\",\"keysgroup\":["+keysgroup->Text+"]}";
-	return _request(RPUT,lisknode+"/api/delegates",data);
+
+// -----------------------------------------------------------------------------------------------------
+// POST /api/dapps/stop
+char * __stdcall LiskAPI::StopDapp(char * id) {
+
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/multisignatures/accounts?publicKey=publicKey
-UnicodeString __fastcall LiskAPI::GetMultiSign(UnicodeString publickey)
-{
-	return _request(lisknode+"/api/multisignatures/accounts?publicKey="+publickey);
+
+// -----------------------------------------------------------------------------------------------------
+// PUT /api/multisignatures
+char * __stdcall LiskAPI::MultiSign(char * secret, int lifetime, int min,
+	char *keysgroup) {
+	AnsiString data = "";
+	if (lifetime > 24)
+		lifetime = 24;
+	if (lifetime < 1)
+		lifetime = 1;
+	if (min > 15)
+		lifetime = 15;
+	if (min < 1)
+		lifetime = 1;
+	data = data.sprintf
+		("{\"secret\":\"%s\",\"lifetime\":%d,\"min\":%d,\"keysgroup\":[%s]}",
+		secret, lifetime, min, keysgroup);
+	return _request(RPUT, "/api/delegates", data.c_str());
 }
-//-----------------------------------------------------------------------------------------------------
-			//POST /api/multisignatures/sign
-UnicodeString __fastcall LiskAPI::SignMultiSignature(UnicodeString secret,UnicodeString publickey,UnicodeString txid)
-{
-    TStringList *data=new TStringList();
-	data->Clear();
-	data->Text="{\"secret\":\""+secret+"\",\"publicKey\":\""+publickey+"\",\"transactionId\":\""+txid+"\"}";
-	return _request(RPOST,lisknode+"/api/multisignatures/sign",data);
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/multisignatures/accounts?publicKey=publicKey
+char * __stdcall LiskAPI::GetMultiSign(char * publickey) {
+	AnsiString url = url.sprintf("/api/multisignatures/accounts?publicKey=%s",
+		publickey);
+	return _request(url.c_str());
 }
-//-----------------------------------------------------------------------------------------------------
-			//GET /api/multisignatures/pending?publicKey=publicKey
-UnicodeString __fastcall LiskAPI::GetPendingMultiSign(UnicodeString publickey)
-{
-	 return _request(lisknode+"/api/multisignatures/pending?publicKey="+publickey);
+
+// -----------------------------------------------------------------------------------------------------
+// POST /api/multisignatures/sign
+char * __stdcall LiskAPI::SignMultiSignature(char *  secret,
+	char *  publickey, char *  txid) {
+	AnsiString data=data.sprintf("{\"secret\":\"%s\",\"publicKey\":\"%s\",\"transactionId\":\"%s\"}",secret,publickey,txid);
+	return _request(RPOST, "/api/multisignatures/sign", data.c_str());
+}
+
+// -----------------------------------------------------------------------------------------------------
+// GET /api/multisignatures/pending?publicKey=publicKey
+char * __stdcall LiskAPI::GetPendingMultiSign(char * publickey) {
+AnsiString url = url.sprintf("/api/multisignatures/pending?publicKey=%s",
+		address);
+	return _request(url.c_str());
+	return _request("/api/multisignatures/pending?publicKey=" + publickey);
 }

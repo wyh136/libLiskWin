@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #ifndef LiskApiH
 #define LiskApiH
 #include <IdBaseComponent.hpp>
@@ -17,130 +16,130 @@ class LiskAPI
 			TIdHTTP *http;
             TEncoding *encoding;
 
-			UnicodeString __fastcall _request(REQUEST_METHOD request_method,UnicodeString url,TStrings *data);
-            UnicodeString __fastcall _request(UnicodeString url /*GET only*/);
+			char * __stdcall _request(REQUEST_METHOD request_method,char * url,char *data);
+			char * __stdcall _request(char * url /*GET only*/);
 	public:
-			__fastcall LiskAPI(UnicodeString nodeurl);
-			__fastcall LiskAPI();
-			__fastcall ~LiskAPI();
-			UnicodeString lisknode;
-			UnicodeString __fastcall GetAccountBySecret(UnicodeString secret);   //  /api/accounts/open                    post
-			UnicodeString __fastcall Balance(UnicodeString address);  //  /api/accounts/getBalance?address=<address>   	   get
-			UnicodeString __fastcall PublicKey(UnicodeString address);//  /api/accounts/getPublicKey?address=address   	   get
-			UnicodeString __fastcall GenPublicKey(UnicodeString secret);// /api/accounts/generatePublicKey             	   post
-			UnicodeString __fastcall GetAccountByAddress(UnicodeString address);//  /api/accounts?address=address          get
-			UnicodeString __fastcall GetDelegates(UnicodeString address);       ///api/accounts/delegates?address=address  get
-			UnicodeString __fastcall DelegatesVote(UnicodeString secret,UnicodeString second_secret,UnicodeString pubkey,TStringList *delegates); // /api/accounts/delegates
+			__stdcall LiskAPI(char * nodeurl);
+			__stdcall LiskAPI();
+			__stdcall ~LiskAPI();
+			AnsiString lisknode;
+			char * __stdcall GetAccountBySecret(char * secret);   //  /api/accounts/open                    post
+			char * __stdcall Balance(char * address);  //  /api/accounts/getBalance?address=<address>   	   get
+			char * __stdcall PublicKey(char * address);//  /api/accounts/getPublicKey?address=address   	   get
+			char * __stdcall GenPublicKey(char * secret);// /api/accounts/generatePublicKey             	   post
+			char * __stdcall GetAccountByAddress(char * address);//  /api/accounts?address=address          get
+			char * __stdcall GetDelegates(char * address);       ///api/accounts/delegates?address=address  get
+			char * __stdcall DelegatesVote(char * secret,char * second_secret,char * pubkey,char *delegates); // /api/accounts/delegates
 			//----------------------------------------------finished 2017 1.11-----------------------------------------------------------------
-			UnicodeString __fastcall Status();                                  // /api/loader/status   get
-			UnicodeString __fastcall SyncStatus();                              //  GET /api/loader/status/sync
-			UnicodeString __fastcall Ping();                                    //  /api/loader/status/ping
+			char * __stdcall Status();                                  // /api/loader/status   get
+			char * __stdcall SyncStatus();                              //  GET /api/loader/status/sync
+			char * __stdcall Ping();                                    //  /api/loader/status/ping
 			//GET /api/transactions?blockId=blockId&senderId=senderId&recipientId=recipientId&limit=limit&offset=offset&orderBy=field
-			UnicodeString __fastcall Transactions(UnicodeString blockID,UnicodeString senderId,UnicodeString recvID,__int64 limit,__int64 offset,UnicodeString orderby);
+			char * __stdcall Transactions(char * blockID,char * senderId,char * recvID,__int64 limit,__int64 offset,char * orderby);
 			//PUT /api/transactions
-			UnicodeString __fastcall SendTransactions(UnicodeString secret,__int64 amount,UnicodeString recverID,UnicodeString publicKey,UnicodeString secondSecret);
+			char * __stdcall SendTransactions(char * secret,__int64 amount,char * recverID,char * publicKey,char * secondSecret);
 			//GET /api/transactions/get?id=id
-			UnicodeString __fastcall GetTransactions(UnicodeString txid);
+			char * __stdcall GetTransactions(char * txid);
 			//GET /api/transactions/unconfirmed/get?id=id
-			UnicodeString __fastcall GetUnConfirmedTxByID(UnicodeString txid);
+			char * __stdcall GetUnConfirmedTxByID(char * txid);
 			//GET /api/transactions/unconfirmed
-			UnicodeString __fastcall GetUnConfirmedTx();
+			char * __stdcall GetUnConfirmedTx();
 			//GET /api/transactions/queued
-			UnicodeString __fastcall GetQueuedTx();
+			char * __stdcall GetQueuedTx();
 			//GET /api/transactions/queued/get?id=id
-			UnicodeString __fastcall GetQueuedTxByID(UnicodeString txid);
+			char * __stdcall GetQueuedTxByID(char * txid);
 			//----------------------------------------------------------------------------------------------------------------------
 			//GET /api/peers?state=state&os=os&version=version&limit=limit&offset=offset&orderBy=orderBy
-			UnicodeString __fastcall GetPeers(UnicodeString state/*1 - disconnected. 2 - connected. 0 - banned*/,UnicodeString os,UnicodeString version,int limit,__int32 offset,UnicodeString orderBy);
+			char * __stdcall GetPeers(int state/*1 - disconnected. 2 - connected. 0 - banned*/,char * os,char * version,int limit,__int32 offset,char * orderBy);
 			//GET /api/peers/get?ip=ip&port=port
-			UnicodeString __fastcall GetPeerByIPEndPoint(UnicodeString ip,int port);
+			char * __stdcall GetPeerByIPEndPoint(char * ip,int port);
 			//GET /api/peers/version
-			UnicodeString __fastcall GetVersion();
+			char * __stdcall GetVersion();
 			//GET /api/blocks/get?id=id
-			UnicodeString __fastcall GetBlockByID(UnicodeString blockid);
+			char * __stdcall GetBlockByID(char * blockid);
 			//GET /api/blocks?generatorPublicKey=generatorPublicKey&height=height&previousBlock=previousBlock&totalAmount=totalAmount&totalFee=totalFee&limit=limit&offset=offset&orderBy=order
-			UnicodeString __fastcall GetBlocks(__int64 totalfee,__int64 totalAmount,UnicodeString prevBlock,__int64 height,UnicodeString generatorPubKey,int limit,__int32 offset,UnicodeString orderBy);
+			char * __stdcall GetBlocks(__int64 totalfee,__int64 totalAmount,char * prevBlock,__int64 height,char * generatorPubKey,int limit,__int32 offset,char * orderBy);
 			//GET /api/blocks/getFee
-			UnicodeString __fastcall GetBlockFee();
+			char * __stdcall GetBlockFee();
 			//GET /api/blocks/getFees
-			UnicodeString __fastcall GetFees();
+			char * __stdcall GetFees();
 			//GET /api/blocks/getReward
-			UnicodeString __fastcall GetReward();
+			char * __stdcall GetReward();
 			//GET /api/blocks/getSupply
-			UnicodeString __fastcall GetSupply();
+			char * __stdcall GetSupply();
 			//GET /api/blocks/getHeight
-			UnicodeString __fastcall GetHeight();
+			char * __stdcall GetHeight();
 			//GET /api/blocks/getStatus
-			UnicodeString __fastcall GetStatus();
+			char * __stdcall GetStatus();
 			//GET /api/blocks/getNethash
-			UnicodeString __fastcall GetNethash();
+			char * __stdcall GetNethash();
 			//GET /api/blocks/getMilestone
-			UnicodeString __fastcall GetMilestone();
+			char * __stdcall GetMilestone();
 			//-----------------------------------------------finished 2017-1-11---------------------------------------------------------------------
 			//GET /api/signatures/get?id=id
-			UnicodeString __fastcall GetSignatureFee();
+			char * __stdcall GetSignatureFee();
 			//PUT /api/signatures
-			UnicodeString __fastcall AddSignature(UnicodeString secret,UnicodeString secondSecret,UnicodeString publickey);
+			char * __stdcall AddSignature(char * secret,char * secondSecret,char * publickey);
 			//-----------------------------------------------finished 2017-1-16------------------------------------------------------
 			//PUT /api/delegates
-			UnicodeString __fastcall CreateDelegate(UnicodeString secret,UnicodeString second_secret,UnicodeString username);
+			char * __stdcall CreateDelegate(char * secret,char * second_secret,char * username);
 			//GET /api/delegates?limit=limit&offset=offset&orderBy=orderBy
-			UnicodeString __fastcall DelegatesList(int limit,__int32 offset,UnicodeString orderBy);
+			char * __stdcall DelegatesList(int limit,__int32 offset,char * orderBy);
 			//GET /api/delegates/get?publicKey=publicKey
-			UnicodeString __fastcall GetDelegateByPkey(UnicodeString publickey);
-			UnicodeString __fastcall GetDelegateByName(UnicodeString username);
+			char * __stdcall GetDelegateByPkey(char * publickey);
+			char * __stdcall GetDelegateByName(char * username);
 			//GET /api/delegates/search?q=username&orderBy=producedblocks:desc
-			UnicodeString __fastcall SearchDelegate(UnicodeString username,UnicodeString orderby);
+			char * __stdcall SearchDelegate(char * username,char * orderby);
 			//GET /api/delegates/count
-			UnicodeString __fastcall DelegatesCount();
+			char * __stdcall DelegatesCount();
 			//GET /api/accounts/delegates/?address=address
-			UnicodeString __fastcall GetVotesByAddress(UnicodeString address);
+			char * __stdcall GetVotesByAddress(char * address);
 			//GET /api/delegates/voters?publicKey=publicKey
-			UnicodeString __fastcall GetVotersByPubkey(UnicodeString publicKey);
+			char * __stdcall GetVotersByPubkey(char * publicKey);
 			//POST /api/delegates/forging/enable
-			UnicodeString __fastcall EnableForge(UnicodeString secret);
+			char * __stdcall EnableForge(char * secret);
 			//POST /api/delegates/forging/disable
-			UnicodeString __fastcall DisableForge(UnicodeString secret);
+			char * __stdcall DisableForge(char * secret);
 			//GET /api/delegates/forging/getForgedByAccount?generatorPublicKey=generatorPublicKey
-			UnicodeString __fastcall GetForgedAmount(UnicodeString pubkey);
+			char * __stdcall GetForgedAmount(char * pubkey);
 			//GET /api/delegates/getNextForgers?limit=limit
-			UnicodeString __fastcall GetNextForgers(int limit);
+			char * __stdcall GetNextForgers(int limit);
 			//-----------------------------------------------finished 2017-1-16----------------------------------------------------
 			//PUT /api/dapps
-			UnicodeString __fastcall RegistDapp(UnicodeString secret,UnicodeString secondSecret,UnicodeString pubkey,UnicodeString category,UnicodeString name,UnicodeString description,UnicodeString tags,int type,UnicodeString link,UnicodeString icon);
+			char * __stdcall RegistDapp(char * secret,char * secondSecret,char * pubkey,char * category,char * name,char * description,char * tags,int type,char * link,char * icon);
 			//GET /api/dapps?category=category&name=name&type=type&link=link&limit=limit&offset=offset&orderBy=orderBy
-			UnicodeString __fastcall GetDapps(UnicodeString category,UnicodeString name,int type,UnicodeString link,int limit,__int32 offset,UnicodeString orderBy);
+			char * __stdcall GetDapps(char * category,char * name,int type,char * link,int limit,__int32 offset,char * orderBy);
 			//GET /api/dapps/get?id=id
-			UnicodeString __fastcall GetDapp(UnicodeString id);
+			char * __stdcall GetDapp(char * id);
 			//GET /api/dapps/search?q=q&category=category&installed=installed
-			UnicodeString __fastcall SearchDapp(UnicodeString query,UnicodeString category,int isInstalled);
+			char * __stdcall SearchDapp(char * query,char * category,int isInstalled);
 			//POST /api/dapps/install
-			UnicodeString __fastcall InstallDapp(UnicodeString id);
+			char * __stdcall InstallDapp(char * id);
 			//GET /api/dapps/installed
-			UnicodeString __fastcall InstalledDapps();
+			char * __stdcall InstalledDapps();
 			//GET /api/dapps/installedIds
-			UnicodeString __fastcall InstalledDappIds();
+			char * __stdcall InstalledDappIds();
 			//POST /api/dapps/uninstall
-			UnicodeString __fastcall UninstallDapp(UnicodeString id);
+			char * __stdcall UninstallDapp(char * id);
 			//POST /api/dapps/launch
-			UnicodeString __fastcall LaunchDapp(UnicodeString id,TStringList params);
+			char * __stdcall LaunchDapp(char * id,char * params);
 			//GET /api/dapps/installing
-			UnicodeString __fastcall InstallingDapps();
+			char * __stdcall InstallingDapps();
 			//GET /api/dapps/uninstalling
-			UnicodeString __fastcall UnInstallingDapps();
+			char * __stdcall UnInstallingDapps();
 			//GET /api/dapps/launched
-			UnicodeString __fastcall LaunchedDapps();
+			char * __stdcall LaunchedDapps();
 			//GET /api/dapps/categories
-			UnicodeString __fastcall Catefories();
+			char * __stdcall Catefories();
 			//POST /api/dapps/stop
-			UnicodeString __fastcall StopDapp(UnicodeString id);
+			char * __stdcall StopDapp(char * id);
 			//PUT /api/multisignatures
-			UnicodeString __fastcall MultiSign(UnicodeString secret,int lifetime,int min,TStringList *keysgroup);
+			char * __stdcall MultiSign(char * secret,int lifetime,int min,char *keysgroup);
 			//GET /api/multisignatures/accounts?publicKey=publicKey
-			UnicodeString __fastcall GetMultiSign(UnicodeString publickey);
+			char * __stdcall GetMultiSign(char * publickey);
 			//POST /api/multisignatures/sign
-			UnicodeString __fastcall SignMultiSignature(UnicodeString secret,UnicodeString publickey,UnicodeString txid);
+			char * __stdcall SignMultiSignature(char * secret,char * publickey,char * txid);
 			//GET /api/multisignatures/pending?publicKey=publicKey
-			UnicodeString __fastcall GetPendingMultiSign(UnicodeString publickey);
+			char * __stdcall GetPendingMultiSign(char * publickey);
 };
 #endif
