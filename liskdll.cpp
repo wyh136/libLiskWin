@@ -28,6 +28,6 @@ int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved
 }
 extern "C" __declspec(dllexport) LiskAPI* __stdcall CreateAPI(char *nodeurl)
 {
-	return new LiskAPI(UnicodeString(nodeurl));
+	return new LiskAPI(nodeurl);
 }
 
