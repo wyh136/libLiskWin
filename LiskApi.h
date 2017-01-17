@@ -54,7 +54,7 @@ class LiskAPI
 			//GET /api/peers/get?ip=ip&port=port
 			char * __stdcall GetPeerByIPEndPoint(char * ip,int port);
 			//GET /api/peers/version
-			char * __stdcall GetVersion();
+			char * __stdcall LisNodeVersion();
 			//GET /api/blocks/get?id=id
 			char * __stdcall GetBlockByID(char * blockid);
 			//GET /api/blocks?generatorPublicKey=generatorPublicKey&height=height&previousBlock=previousBlock&totalAmount=totalAmount&totalFee=totalFee&limit=limit&offset=offset&orderBy=order
