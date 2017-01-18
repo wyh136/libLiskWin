@@ -6,6 +6,11 @@
 #include <IdHTTP.hpp>
 #include <IdTCPClient.hpp>
 #include <IdTCPConnection.hpp>
+#include <IdSSL.hpp>
+#include <IdSSLOpenSSL.hpp>
+#include <IdIOHandler.hpp>
+#include <IdIOHandlerSocket.hpp>
+#include <IdIOHandlerStack.hpp>
 //MADE BY PHINX
 //---------------------------------------------------------------------------
 //-H "Content-Type: application/json"
@@ -14,8 +19,8 @@ class LiskAPI
 {
 	private:
 			TIdHTTP *http;
-            TEncoding *encoding;
-
+            TIdSSLIOHandlerSocketOpenSSL *ssl;
+			TEncoding *encoding;
 			char * __stdcall _request(REQUEST_METHOD request_method,char * url,char *data);
 			char * __stdcall _request(char * url /*GET only*/);
 	public:
@@ -23,6 +28,7 @@ class LiskAPI
 			__stdcall LiskAPI();
 			__stdcall ~LiskAPI();
 			AnsiString lisknode;
+            char * __stdcall HTTPRequest(REQUEST_METHOD request_method,char * url,char *data);
 			char * __stdcall GetAccountBySecret(char * secret);   //  /api/accounts/open                    post
 			char * __stdcall Balance(char * address);  //  /api/accounts/getBalance?address=<address>   	   get
 			char * __stdcall PublicKey(char * address);//  /api/accounts/getPublicKey?address=address   	   get
@@ -54,7 +60,7 @@ class LiskAPI
 			//GET /api/peers/get?ip=ip&port=port
 			char * __stdcall GetPeerByIPEndPoint(char * ip,int port);
 			//GET /api/peers/version
-			char * __stdcall LisNodeVersion();
+			char * __stdcall LiskNodeVersion();
 			//GET /api/blocks/get?id=id
 			char * __stdcall GetBlockByID(char * blockid);
 			//GET /api/blocks?generatorPublicKey=generatorPublicKey&height=height&previousBlock=previousBlock&totalAmount=totalAmount&totalFee=totalFee&limit=limit&offset=offset&orderBy=order

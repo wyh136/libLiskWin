@@ -9,5 +9,9 @@
     <Transaction>2017/01/17 14:02:40.000.608,=D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\LiskApi.cpp</Transaction>
     <Transaction>2017/01/17 14:03:19.000.356,D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\LiskApi.cpp=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\LiskApi.cpp</Transaction>
     <Transaction>2017/01/17 14:03:19.000.356,D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\LiskApi.h=D:\我的文档\Embarcadero\Studio\Projects\LiskWin.dll\LiskApi.h</Transaction>
+    <Transaction>2017/01/18 14:49:06.597,=D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\libeay32.lib</Transaction>
+    <Transaction>2017/01/18 14:49:06.894,=D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\ssleay32.lib</Transaction>
+    <Transaction>2017/01/18 14:50:22.967,D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\libeay32.lib=</Transaction>
+    <Transaction>2017/01/18 14:50:25.950,D:\我的文档\Embarcadero\Studio\Projects\libLiskWin\ssleay32.lib=</Transaction>
   </Transactions>
 </BorlandProject>

@@ -8,7 +8,12 @@
 
 __stdcall LiskAPI::LiskAPI(char * nodeurl) {
 	http = new TIdHTTP();
-	// http->Request->Host=nodeurl;
+	AnsiString url=AnsiString(nodeurl);
+	if(url.LowerCase().SubString(0,5)=="https")
+	{
+		ssl=new TIdSSLIOHandlerSocketOpenSSL();
+        http->IOHandler=ssl;
+	}
 	lisknode = nodeurl;
 	http->Request->ContentType = "application/json";
 }
@@ -22,24 +27,30 @@ __stdcall LiskAPI::LiskAPI() {
 __stdcall LiskAPI::~LiskAPI() {
 	if (!http)
 		delete http;
+	if(!ssl)
+        delete ssl;
 }
 
 // ---------------------------------------------------------------------------
 char * __stdcall LiskAPI::_request(REQUEST_METHOD request_method, char * url,
 	char * data) {
-	TStringStream *ss = NULL;
+	return HTTPRequest(request_method,(lisknode+url).c_str(),data);
+}
+char * __stdcall LiskAPI::HTTPRequest(REQUEST_METHOD request_method,char * url,char *data)
+{
+    TStringStream *ss = NULL;
 	if (data != NULL)
 		ss = new TStringStream(AnsiString(data), encoding->UTF8, true);
 	AnsiString result = "";
 	switch (request_method) {
 	case RGET:
-		result = http->Get(lisknode + AnsiString(url));
+		result = http->Get(AnsiString(url));
 		break;
 	case RPOST:
-		result = http->Post(lisknode + AnsiString(url), ss);
+		result = http->Post(AnsiString(url), ss);
 		break;
 	case RPUT:
-		result = http->Put(lisknode + AnsiString(url), ss);
+		result = http->Put(AnsiString(url), ss);
 		break;
 	}
 	if (ss) {
@@ -48,7 +59,6 @@ char * __stdcall LiskAPI::_request(REQUEST_METHOD request_method, char * url,
 	}
 	return result.c_str();
 }
-
 // ---------------------------------------------------------------------------
 char * __stdcall LiskAPI::_request(char * url /* GET only */) {
 	return _request(RGET, url, NULL);
@@ -221,7 +231,7 @@ char * __stdcall LiskAPI::GetPeerByIPEndPoint(char * ip, int port) {
 }
 
 // ---------------------------------------------------------------------------
-char * __stdcall LiskAPI::GetVersion() {
+char * __stdcall LiskAPI::LiskNodeVersion() {
 	return _request("/api/peers/version");
 }
 

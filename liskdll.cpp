@@ -138,8 +138,8 @@ extern "C" {
 		return liskapi->GetPeerByIPEndPoint(ip, port);
 	}
 
-	IMPORT_EXPORT  char * __stdcall LisNodeVersion() {
-		return liskapi->LisNodeVersion();
+	IMPORT_EXPORT  char * __stdcall LiskNodeVersion() {
+		return liskapi->LiskNodeVersion();
 	}
 
 	IMPORT_EXPORT  char * __stdcall GetBlockByID(char * blockid) {
@@ -326,5 +326,10 @@ extern "C" {
 	IMPORT_EXPORT  char * __stdcall GetPendingMultiSign(char * publickey)
 	{
 		return liskapi->GetPendingMultiSign(publickey);
+	}
+
+	IMPORT_EXPORT char * __stdcall HTTPRequest(int request_method,char * url,char *data)
+	{
+		return liskapi->HTTPRequest((REQUEST_METHOD)request_method,url,data);
 	}
 }
